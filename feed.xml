@@ -1,4 +1,111 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2019-01-12T21:07:41+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">fishspace</title><subtitle>梦溪杂谈</subtitle><author><name>RobbinsDebby</name></author><entry><title type="html">Ruby Jit</title><link href="http://localhost:4000/2019/01/12/ruby-jit.html" rel="alternate" type="text/html" title="Ruby Jit" /><published>2019-01-12T00:00:00+08:00</published><updated>2019-01-12T00:00:00+08:00</updated><id>http://localhost:4000/2019/01/12/ruby-jit</id><content type="html" xml:base="http://localhost:4000/2019/01/12/ruby-jit.html">&lt;p&gt;Ruby Jit&lt;/p&gt;
-&lt;h1 id=&quot;大纲&quot;&gt;大纲&lt;/h1&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.5">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2019-01-13T17:44:41+08:00</updated><id>/feed.xml</id><title type="html">fishspace</title><subtitle>梦溪杂谈</subtitle><author><name>RobbinsDebby</name></author><entry><title type="html">Ruby Jit</title><link href="/2019/01/12/ruby-jit.html" rel="alternate" type="text/html" title="Ruby Jit" /><published>2019-01-12T00:00:00+08:00</published><updated>2019-01-12T00:00:00+08:00</updated><id>/2019/01/12/ruby-jit</id><content type="html" xml:base="/2019/01/12/ruby-jit.html">&lt;p&gt;Ruby Jit
+&lt;strong&gt;为新时代Ruby性能的提升不断调整和尝试。&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Ruby2.6引入了一个JIT（实时）编译器的初始实现。&lt;/p&gt;
+
+&lt;p&gt;JIT编译器旨在提高Ruby程序的性能。
+与传统的在进程中运行的JIT编译器不同，Ruby的JIT编译器将C代码写入到磁盘，并调用一个通用的C编译器来生成原生可执行程序。
+有关详细信息，请参阅&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/MJIT#MJIT-organization&quot;&gt;Vladimir Makarov的MJIT组织&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;要启用JIT编译器，请在命令行或$rubyopt环境变量中指定–jit。
+指定–jit verbose=1会使得jit编译器打印附加信息。
+阅读ruby –help的输出或&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/MJIT#MJIT-organization&quot;&gt;文档&lt;/a&gt;获取其他选项的信息。
+当Ruby由gcc、clang或Microsoft VC++构建时，则支持JIT编译器.不过需要在运行时提供额外的参数。
+从Ruby2.6.0开始，在一个CPU密集型、非平凡的基准测试&lt;a href=&quot;https://github.com/mame/optcarrot&quot;&gt;optcarrot&lt;/a&gt;上，性能比Ruby2.5快了1.7倍。
+然而，它仍然是试验性的，而且许多其他内存密集型工作负载（如Rails）目前可能无法从中受益。
+更多详细信息，请参见&lt;a href=&quot;https://medium.com/@k0kubun/ruby-2-6-jit-progress-and-future-84e0a830ecbf&quot;&gt;Ruby2.6jit-进度和未来&lt;/a&gt;。&lt;/p&gt;
+
+&lt;h1 id=&quot;rubyjit架构图&quot;&gt;RubyJit架构图&lt;/h1&gt;
+&lt;p&gt;现在的RubyJit是由&lt;strong&gt;Vladimir Makarov&lt;/strong&gt;提供的，名为&lt;strong&gt;MJIT&lt;/strong&gt;，&lt;strong&gt;M&lt;/strong&gt;所代表的是ruby method.
+&lt;img src=&quot;/assets/img/mjit_archetecture.png&quot; alt=&quot;Mjit&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;测试过程&quot;&gt;测试过程&lt;/h1&gt;
+&lt;p&gt;使用如下benchmark代码进行实验&lt;/p&gt;
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'benchmark/ips'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;calculate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;40_000_000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;16807&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2147483647&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;48271&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2147483647&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xffff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xffff&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;no&quot;&gt;Benchmark&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ips&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;iterations&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;report&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;calculate&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;calculate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;65&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;8921&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;100_000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;这里是结果。&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;➜ ruby &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt;
+ruby 2.6.0p0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2018-12-25 revision 66547&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;x86_64-darwin18]
+➜ ruby bench.rb
+Warming up &lt;span class=&quot;nt&quot;&gt;--------------------------------------&lt;/span&gt;
+           calculate    15.000  i/100ms
+           calculate    15.000  i/100ms
+           calculate    15.000  i/100ms
+Calculating &lt;span class=&quot;nt&quot;&gt;-------------------------------------&lt;/span&gt;
+           calculate      2.277k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 4.1%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -     11.370k &lt;span class=&quot;k&quot;&gt;in   &lt;/span&gt;5.002327s
+           calculate      2.305k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 2.7%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -     11.520k &lt;span class=&quot;k&quot;&gt;in   &lt;/span&gt;5.001258s
+           calculate      2.295k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.7%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -     11.460k &lt;span class=&quot;k&quot;&gt;in   &lt;/span&gt;5.000617s
+➜ ruby &lt;span class=&quot;nt&quot;&gt;--jit&lt;/span&gt; bench.rb
+Warming up &lt;span class=&quot;nt&quot;&gt;--------------------------------------&lt;/span&gt;
+           calculate    14.000  i/100ms
+           calculate    63.000  i/100ms
+           calculate    72.000  i/100ms
+Calculating &lt;span class=&quot;nt&quot;&gt;-------------------------------------&lt;/span&gt;
+           calculate     51.890k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 5.2%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -    258.336k &lt;span class=&quot;k&quot;&gt;in   &lt;/span&gt;4.994935s
+           calculate     51.197k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 5.4%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -    254.952k &lt;span class=&quot;k&quot;&gt;in   &lt;/span&gt;4.995633s
+           calculate     50.705k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 8.9%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -    248.616k &lt;span class=&quot;k&quot;&gt;in   &lt;/span&gt;4.994758s
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;可以看到性能由2.295k提升至了51.890k，接近23倍，非常令人振奋!可以很明显的看到benchmark的脚本专门为JIT针对设计。
+如果使用如下benchmark脚本。&lt;/p&gt;
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;require&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;benchmark/ips&quot;&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;Benchmark&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;ips&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;array&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;..&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;10000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;to_a&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;iterations&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;report&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;iterations&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;sample&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;结果如下。&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;➜ ruby &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt;
+ruby 2.6.0p0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2018-12-25 revision 66547&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;x86_64-darwin18]
+➜  ruby jit.rb
+Warming up &lt;span class=&quot;nt&quot;&gt;--------------------------------------&lt;/span&gt;
+          iterations   365.482k i/100ms
+          iterations   366.480k i/100ms
+          iterations   367.417k i/100ms
+Calculating &lt;span class=&quot;nt&quot;&gt;-------------------------------------&lt;/span&gt;
+          iterations    366.982B &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.2%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -      1.250T
+          iterations    366.960B &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.3%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -      1.251T
+          iterations    367.005B &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.1%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -      1.245T
+➜ ruby &lt;span class=&quot;nt&quot;&gt;--jit&lt;/span&gt; jit.rb
+Warming up &lt;span class=&quot;nt&quot;&gt;--------------------------------------&lt;/span&gt;
+          iterations   365.464k i/100ms
+          iterations   368.962k i/100ms
+          iterations   369.268k i/100ms
+Calculating &lt;span class=&quot;nt&quot;&gt;-------------------------------------&lt;/span&gt;
+          iterations    368.656B &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.4%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -      1.184T
+          iterations    368.778B &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.2%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -      1.199T
+          iterations    368.767B &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;± 3.2%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; i/s -      1.199T
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;可以看到性能没有的到提升，从总数来看由1.251T降到了1.199T，可以说整体来看性能是略微下降了。&lt;/p&gt;
+&lt;h1 id=&quot;结论&quot;&gt;结论&lt;/h1&gt;
+&lt;p&gt;MJIT目前还处于试验阶段，对某些CPU密集型的运算能大幅提升性能，但对于内存密集型的工作任务效果不大，而且可能出现反效果。&lt;/p&gt;
 &lt;h1 id=&quot;参考&quot;&gt;参考&lt;/h1&gt;
-&lt;p&gt;https://www.ruby-lang.org/en/&lt;/p&gt;</content><author><name>RobbinsDebby</name></author><category term="Ruby" /><summary type="html">Ruby Jit 大纲 参考 https://www.ruby-lang.org/en/</summary></entry></feed>
+&lt;p&gt;&lt;a href=&quot;https://www.ruby-lang.org/en/&quot;&gt;ruby-lang&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/MJIT#MJIT-organization&quot;&gt;Vladimir Makarov的MJIT组织&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/mame/optcarrot&quot;&gt;optcarrot&lt;/a&gt;上，性能比Ruby2.5快了1.7倍&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://medium.com/@k0kubun/ruby-2-6-jit-progress-and-future-84e0a830ecbf&quot;&gt;Ruby2.6jit-进度和未来&lt;/a&gt;&lt;/p&gt;</content><author><name>RobbinsDebby</name></author><category term="Ruby" /><summary type="html">Ruby Jit 为新时代Ruby性能的提升不断调整和尝试。</summary></entry></feed>
