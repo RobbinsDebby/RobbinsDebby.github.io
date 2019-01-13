@@ -5,8 +5,8 @@
     <description>梦溪杂谈</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 13 Jan 2019 17:44:41 +0800</pubDate>
-    <lastBuildDate>Sun, 13 Jan 2019 17:44:41 +0800</lastBuildDate>
+    <pubDate>Sun, 13 Jan 2019 17:48:22 +0800</pubDate>
+    <lastBuildDate>Sun, 13 Jan 2019 17:48:22 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
     
       <item>
@@ -119,7 +119,7 @@ Calculating &lt;span class=&quot;nt&quot;&gt;-----------------------------------
 
 &lt;p&gt;&lt;a href=&quot;https://bugs.ruby-lang.org/projects/ruby/wiki/MJIT#MJIT-organization&quot;&gt;Vladimir Makarov的MJIT组织&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;&lt;a href=&quot;https://github.com/mame/optcarrot&quot;&gt;optcarrot&lt;/a&gt;上，性能比Ruby2.5快了1.7倍&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/mame/optcarrot&quot;&gt;optcarrot&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://medium.com/@k0kubun/ruby-2-6-jit-progress-and-future-84e0a830ecbf&quot;&gt;Ruby2.6jit-进度和未来&lt;/a&gt;&lt;/p&gt;
 </description>
