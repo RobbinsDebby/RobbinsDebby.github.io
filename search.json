@@ -1,6 +1,12 @@
 [
   
     {
+      "title"    : "时间是最珍贵的资源",
+      "tags"     : "life",
+      "url"      : "/2019/05/27/time.html"
+    } ,
+  
+    {
       "title"    : "Ruby Jit",
       "tags"     : "Ruby",
       "url"      : "/2019/01/12/ruby-jit.html"

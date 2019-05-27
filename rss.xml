@@ -5,9 +5,37 @@
     <description>梦溪杂谈</description>
     <link>/</link>
     <atom:link href="/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 13 Jan 2019 17:48:22 +0800</pubDate>
-    <lastBuildDate>Sun, 13 Jan 2019 17:48:22 +0800</lastBuildDate>
+    <pubDate>Mon, 27 May 2019 18:17:41 +0800</pubDate>
+    <lastBuildDate>Mon, 27 May 2019 18:17:41 +0800</lastBuildDate>
     <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>时间是最珍贵的资源</title>
+        <description>&lt;p&gt;古人常说，“一寸光阴，一寸金。寸金难买寸光阴”。&lt;/p&gt;
+
+&lt;p&gt;如今看来，古人诚不欺我也。&lt;/p&gt;
+
+&lt;p&gt;从个人的经验来看，人类的活动，从某种意义来说都是时间的凝聚，而人类的思想，从某种意义来说都是为了提升时间的凝聚力。&lt;/p&gt;
+
+&lt;p&gt;时间是最珍贵的资源，所以时刻需要提醒自己，要给自己和家人留一点时间。&lt;/p&gt;
+
+&lt;p&gt;时间是最珍贵的资源，所以要将自己的时间投入到值得的人或事之间。&lt;/p&gt;
+
+&lt;p&gt;时间是最珍贵的资源，所以空闲的时间需要多多考虑如何实现其价值。&lt;/p&gt;
+
+&lt;p&gt;创作是最能凝聚时间价值的活动，所以时常多自勉！！&lt;/p&gt;
+
+</description>
+        <pubDate>Mon, 27 May 2019 00:00:00 +0800</pubDate>
+        <link>/2019/05/27/time.html</link>
+        <guid isPermaLink="true">/2019/05/27/time.html</guid>
+        
+        <category>life</category>
+        
+        
+        <category>生活感想</category>
+        
+      </item>
     
       <item>
         <title>Ruby Jit</title>
